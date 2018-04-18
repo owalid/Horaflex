@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Horoflex</string>
+    <string name="btnreset_name">Reset</string>
+    <string name="btnconnection_name">Connection</string>
 </resources>
