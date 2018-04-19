@@ -1,82 +1,102 @@
 package com.example.othmane.horoflex;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.FragmentTransaction;
+import android.app.LoaderManager;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Handler;
+import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
-    private Button btnreset;
-    private Button btnConnection;
-    private BluetoothAdapter BA;
+import app.akexorcist.bluetotohspp.library.BluetoothSPP;
+import app.akexorcist.bluetotohspp.library.BluetoothState;
+import app.akexorcist.bluetotohspp.library.DeviceList;
 
-    BluetoothAdapter bluetoothAdapter;
-    BluetoothDevice bluetoothDevice;
+public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener{
 
-    static final int STATE_LISTENING = 1;
-    static final int STATE_CONNECTING = 2;
-    static final int STATE_CONNECTED = 3;
-    static final int STATE_CONNECTION_FAILLED = 4;
-    static final int STATE_MESSAGE_RECEIVED = 5;
-    int REQUEST_ENABLE_BLUETOOTH = 1;
-
+    MainFragment mainFragment = new MainFragment();
+    PreferenceFragment preferenceFragment = new Prefs();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        btnreset = (Button) findViewById(R.id.btnReset);
-        btnreset.setOnClickListener(this);
-
-        btnConnection = (Button) findViewById(R.id.btnCo);
-        btnConnection.setOnClickListener(this);
-
-        BA = BluetoothAdapter.getDefaultAdapter();
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragementContainer, this.mainFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
 
 
-        if(!bluetoothAdapter.isEnabled()){
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BLUETOOTH);
+
+
+    }
+
+    // Création du menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    // Listener on the menu
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // The item the user clicked on
+        int id = item.getItemId();
+        // Action chosen according to the item
+        switch (id){
+        // to display the settings
+           case R.id.action_settings:
+                //Attachment of the fragment of preferences
+                getFragmentManager().beginTransaction().addToBackStack("pref").replace(R.id.fragementContainer, preferenceFragment).commit();
+
+                return true;
+
         }
+        return super.onOptionsItemSelected(item);
+
+    }
+
+
+    // Méthode pour appliquer les préférences :
+    protected void applyPref() {
+        // - récupérer les valeurs choisies par l'utilisateur
+
+
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-
-            case R.id.btnReset:
-
-                //todo reset
-
-                break;
-
-            case R.id.btnCo:
-
-                on();
-                //todo connection with bluetooth
-
-                break;
-        }
-    }
-
-    public void on(){
-        if (!BA.isEnabled()) {
-            Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(turnOn, 0);
-            Toast.makeText(getApplicationContext(), "Turned on",Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getApplicationContext(), "Already on", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public void off(View v){
-        BA.disable();
-        Toast.makeText(getApplicationContext(), "Turned off" ,Toast.LENGTH_LONG).show();
+    public void onFragmentInteraction(Uri uri) {
+//
     }
 }

@@ -2,4 +2,15 @@
     <string name="app_name">Horoflex</string>
     <string name="btnreset_name">Reset</string>
     <string name="btnconnection_name">Connection</string>
+    <string name="btn_data">Get the data</string>
+    <string name="text_Notco">Not Connected</string>
+    <string name="text_co">Connected</string>
+    <string name="Setting">Config</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
