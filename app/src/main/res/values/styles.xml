@@ -29,4 +29,11 @@
         <item name="android:textColorSecondaryInverse">@color/black_overlay</item>
     </style>
 
+    <style name="Horo2" parent="Base.Theme.AppCompat.Light.DarkActionBar" >
+        <item name="colorPrimary">@color/blue_ocean_horo</item>
+        <item name="android:navigationBarColor">@color/blue_ocean_horo</item>
+        <item name="colorPrimaryDark">@color/blue_beige_blue</item>
+        <item name="android:colorBackground">@color/blue_blue_horo</item>
+    </style>
+
 </resources>

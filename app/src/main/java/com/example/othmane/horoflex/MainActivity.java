@@ -40,6 +40,10 @@ import app.akexorcist.bluetotohspp.library.BluetoothSPP;
 import app.akexorcist.bluetotohspp.library.BluetoothState;
 import app.akexorcist.bluetotohspp.library.DeviceList;
 
+
+//======================================================
+//==============Main Activity===========================
+//======================================================
 public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener{
 
     MainFragment mainFragment = new MainFragment();
@@ -55,9 +59,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
         fragmentTransaction.replace(R.id.fragementContainer, this.mainFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
-
-
 
     }
 

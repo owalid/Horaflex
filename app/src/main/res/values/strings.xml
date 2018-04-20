@@ -13,4 +13,19 @@
     <string name="title_activity_splash">SplashActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string-array name="read_pref">
+        <item>Get the Firmware</item>
+        <item>State input</item>
+        <item>Rest state input</item>
+        <item>Trigger1</item>
+        <item>Trigger2</item>
+        <item>Trigger3</item>
+        <item>Horamètre1</item>
+        <item>Horamètre2</item>
+        <item>Horamètre3</item>
+        <item>ADC1</item>
+        <item>ADC2</item>
+        <item>ADC3</item>
+    </string-array>
 </resources>

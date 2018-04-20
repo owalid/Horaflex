@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
 //======================================================
-//==============Menu pref=================
+//==============Menu pref===============================
 //======================================================
 
 public class Prefs extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener{

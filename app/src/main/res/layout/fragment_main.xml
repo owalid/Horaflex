@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".MainFragment">
+    tools:context=".MainFragment"
+    android:orientation="vertical">
+
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_centerInParent="true"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="30dp"
+        android:paddingTop="30dp">
 
         <TextView
             android:id="@+id/returnText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/border_style"
             android:text="Value:"
             android:textSize="30sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -26,53 +33,74 @@
 
     </LinearLayout>
 
-    <RelativeLayout
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        tools:layout_editor_absoluteX="97dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="80dp">
+
 
         <Button
-            android:id="@+id/btnReset"
-            android:layout_width="wrap_content"
+            android:id="@+id/btnCo"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="170dp"
-            android:text="@string/btnreset_name"
+            android:text="@string/btnconnection_name"
             android:textSize="30sp" />
 
         <TextView
             android:id="@+id/textCo"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/btnCo"
-            android:layout_centerHorizontal="true"
             android:textSize="30sp" />
 
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+
+
         <Button
-            android:id="@+id/btnCo"
-            android:layout_width="wrap_content"
+            android:id="@+id/btnReset"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_weight="1"
+            android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="258dp"
-            android:text="@string/btnconnection_name"
+            android:text="@string/btnreset_name"
             android:textSize="30sp" />
+
 
         <Button
             android:id="@+id/btnData"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="317dp"
             android:text="@string/btn_data"
             android:textSize="30sp" />
 
 
-    </RelativeLayout>
+
+    </LinearLayout>
 
 
-</FrameLayout>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/action_getData"
+        android:text=""
+        android:textSize="30sp"/>
+
+
+
+
+</LinearLayout>

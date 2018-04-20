@@ -2,6 +2,20 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="Config">
+        android:title="Config"
+        android:textSize="30px"
+        android:layout="@layout/pref_layout">
+
+
+      <ListPreference
+          android:title="Choose your action"
+          android:textSize="30px"
+          android:key="chosenAction"
+          android:defaultValue="Black"
+          android:entries="@array/read_pref"
+          android:entryValues="@array/read_pref"/>
+
     </PreferenceCategory>
+
+
 </PreferenceScreen>

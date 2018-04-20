@@ -10,4 +10,7 @@
     <color name="blueColor">#40e3d3</color>
     <color name="colorForeground">#ef000000</color>
     <color name="secondary_text_default_material_light">#ae000000</color>
+    <color name="blue_ocean_horo">#1a293d</color>
+    <color name="blue_beige_blue">#cdd9d9</color>
+    <color name="blue_blue_horo">#6290b6</color>
 </resources>
