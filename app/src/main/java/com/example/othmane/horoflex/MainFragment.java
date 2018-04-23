@@ -1,5 +1,6 @@
 package com.example.othmane.horoflex;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -17,7 +18,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -68,7 +71,7 @@ import app.akexorcist.bluetotohspp.library.DeviceList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment implements View.OnClickListener{
+public class MainFragment extends Fragment implements View.OnClickListener {
 
     //const
     private final static String FIRMWARE = "AT+R_REG=00;0001";
@@ -86,34 +89,21 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     private final static String NO_DATA = "NO DATA";
 
 
-
-
-    private Button btnreset;
-    private Button btnConnection;
-    private Button btnGetData;
-    private TextView txt;
-    private TextView txtCo;
-    private TextView txt_action_getData;
+    private Button btnreset, btnConnection, btnGetData, btnPref;
+    private TextView txt, txt_action_getData;
     private BluetoothAdapter BA;
     BluetoothSPP bt;
     String[] temp;
     long hex;
     Date date = new Date();
-    PreferenceFragment preferenceFragment = new Prefs();
-    private String str_action="";
+    private String str_action = "";
     boolean time;
 
 
+    //---TODO CYCLE DE VIE DE LAPPLI..done
+    //-----TODO PB DE TROP LONG VALEUR DANS CONVERT...done
+    //--------TODO ADD LANGUE FRANCAISE..done
 
-
-    //TODO CYCLE DE VIE DE LAPPLI
-    //TODO PB DE TROP LONG VALEUR DANS CONVERT
-    //TODO ADD LANGUE FRANCAISE
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -127,6 +117,38 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         bt.setupService();
         bt.enable();
 
+        bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
+            public void onDeviceConnected(String name, String address) {
+                btnConnection.setText(getResources().getString(R.string.Connected_to) + " " + name);
+                btnGetData.setEnabled(true);
+            }
+
+            public void onDeviceDisconnected() {
+                btnConnection.setText(R.string.Unable_to_connect);
+                btnGetData.setEnabled(false);
+                btnreset.setEnabled(false);
+            }
+
+            public void onDeviceConnectionFailed() {
+                btnConnection.setText(R.string.Connection_lost);
+                btnGetData.setEnabled(false);
+                btnreset.setEnabled(false);
+            }
+        });
+
+        if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
+            bt.disconnect();
+        } else {
+            bt.startService(BluetoothState.DEVICE_OTHER);
+            Intent intent = new Intent(getActivity(), DeviceList.class);
+            intent.putExtra("bluetooth_devices", R.string.intent_connect_blue);
+            intent.putExtra("no_devices_found", R.string.intent_connect_no_device);
+            intent.putExtra("scanning", R.string.intent_connect_scann);
+            intent.putExtra("scan_for_devices", R.string.intent_connect_scann_for_device);
+            intent.putExtra("select_device", R.string.intent_connect_select_device);
+            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+        }
+
         //init button
         btnreset = (Button) view.findViewById(R.id.btnReset);
         btnreset.setOnClickListener(this);
@@ -137,10 +159,11 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         btnGetData = (Button) view.findViewById(R.id.btnData);
         btnGetData.setOnClickListener(this);
 
+        btnPref = (Button) view.findViewById(R.id.btnPref);
+        btnPref.setOnClickListener(this);
+
         //init text
         txt = (TextView) view.findViewById(R.id.returnText);
-        txtCo = (TextView) view.findViewById(R.id.textCo);
-        txtCo.setText(R.string.text_Notco);
         txt_action_getData = (TextView) view.findViewById(R.id.action_getData);
 
         return view;
@@ -149,58 +172,55 @@ public class MainFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()){
+        switch (v.getId()) {
 
             case R.id.btnReset:
-                if(!(str_action.equals(NO_DATA)) && time(str_action)){
-                    bt.send("AT+W_REG=00;0105;00000000",true);
-                }else{
+                if (!(str_action.equals(NO_DATA)) && time(str_action)) {
+                    bt.send("AT+W_REG=00;0105;00000000", true);
+                } else {
                     txt.setText(NO_DATA + " TO RESET");
                 }
-                System.out.println("toto");
-
 
                 bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
                     public void onDataReceived(byte[] data, String message) {
+                        //split the data
+                        temp = message.split(";");
+                        //parse hexa to Long and Long to second
+                        hex = Long.parseLong(temp[2], 16);
+                        System.out.println("=====================================================================" + message + "=====================================================================" + temp[2] + "=====================================================================" + convert(hex, temp[2]) );
 
-                            //split the data
-                            temp = message.split(";");
+                        String returnString = convert(hex, temp[2]);
 
-                            //parse hexa to Long and Long to second
-                            hex = Long.parseLong(temp[2],16);
-                        txt.setText(convert(hex));
-
+                        txt.setText(returnString.split(":")[0] + " Journée " + returnString.split(":")[0] + " H " + returnString.split(":")[0] + " Mn " + returnString.split(":")[0] + " Sec " );
                     }
                 });
                 break;
 
             case R.id.btnData:
-                if(!(str_action.equals(NO_DATA))){
-                    System.out.println("--------------------------------------------  " + str_action + " ---------------------------------");
-
+                if (!(str_action.equals(NO_DATA))) {
                     bt.send(str_action, true);
-                }else{
+                } else {
                     txt.setText(NO_DATA);
                 }
                 bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
                     public void onDataReceived(byte[] data, String message) {
                         // Do something when data incoming
-
-                        System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  " + str_action.split(";")[1] + " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-
-                        if( (str_action.split(";")[1].equals("0105")) || (str_action.split(";")[1].equals("0106")) || (str_action.split(";")[1].equals("0107")) ){
-
+                        if ((str_action.split(";")[1].equals("0105")) || (str_action.split(";")[1].equals("0106")) || (str_action.split(";")[1].equals("0107"))) {
                             btnreset.setEnabled(true);
 
                             //split the data
                             temp = message.split(";");
 
                             //parse hexa to Long and Long to second
-                            hex = Long.parseLong(temp[2],16);
+                            hex = Long.parseLong(temp[2], 16);
+
+
+                            String returnString = convert(hex, temp[2]);
+
+                            txt.setText(returnString.split(":")[0] + " Journée " + returnString.split(":")[0] + " H " + returnString.split(":")[0] + " Mn " + returnString.split(":")[0] + " Sec " );
 
                             //set Text
-                            txt.setText(convert(hex));
-                        }else {
+                        } else {
                             txt.setText(message.split(";")[2]);
                         }
                     }
@@ -217,9 +237,224 @@ public class MainFragment extends Fragment implements View.OnClickListener{
                 intent.putExtra("select_device", "Select");
                 startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
                 break;
+            case R.id.btnPref:
+                onCreateDialog();
+                break;
         }
     }
 
+
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        alert();
+        if (requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
+            if (resultCode == Activity.RESULT_OK)
+                btnreset.setEnabled(true);
+            btnGetData.setEnabled(true);
+            bt.connect(data);
+        }
+    }
+
+    //Loader for receipt the data
+    private void alert() {
+        String content = "";
+        content = getResources().getString(R.string.wait_popup_content);
+        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle(R.string.wait_popup_title);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage(content);
+        progressDialog.show();
+
+        Runnable progressRunnable = new Runnable() {
+
+            @Override
+            public void run() {
+                progressDialog.cancel();
+            }
+        };
+        Handler pdCanceller = new Handler();
+        pdCanceller.postDelayed(progressRunnable, 5000);
+    }
+
+    public void onCreateDialog() {
+        final String[] mSelectedItems;// Where we track the selected items
+        mSelectedItems = getResources().getStringArray(R.array.read_pref);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        // Set the dialog title
+        builder.setTitle(R.string.setting_action)
+                // Specify the list array, the items to be selected by default (null for none),
+                // and the listener through which to receive callbacks when items are selected
+                .setSingleChoiceItems(R.array.read_pref, -1,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                txt_action_getData.setText(mSelectedItems[which]);
+                                switch (mSelectedItems[which]){
+
+                                    //english
+                                    case "Get the Firmware"  :
+                                        str_action = FIRMWARE;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "State input":
+                                        str_action = STATE_INPUT;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "Rest state input":
+                                        str_action = STATE_REST;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    //french
+                                    case "Firmware":
+                                        str_action = STATE_INPUT;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "Etat d'entré":
+                                        str_action = FIRMWARE;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "Etat repos des entrées":
+                                        str_action = STATE_REST;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+
+                                    case "Trigger1":
+                                        str_action = TRIGGER1;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "Trigger2":
+                                        str_action = TRIGGER2;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "Trigger3":
+                                        str_action = TRIGGER3;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "Horamètre1":
+                                        str_action = HORAMETRE1;
+                                        btnreset.setEnabled(true);
+                                        break;
+
+                                    case "Horamètre2":
+                                        str_action = HORAMETRE2;
+                                        btnreset.setEnabled(true);
+                                        break;
+
+                                    case "Horamètre3":
+                                        str_action = HORAMETRE3;
+                                        btnreset.setEnabled(true);
+                                        break;
+
+                                    case "ADC1":
+                                        str_action = ADC1;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "ADC2":
+                                        str_action = ADC2;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                    case "ADC3":
+                                        str_action = ADC3;
+                                        btnreset.setEnabled(false);
+                                        break;
+
+                                }
+
+                            }
+                        })
+                // Set the action buttons
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton("RETOUR", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+
+         builder.show();
+    }
+
+    protected String convert(long hex, String tempo){
+
+        if(hex != 00000000 ){
+            //parse hexa to Long and Long to second
+            hex = Long.parseLong(tempo,16);
+            hex = (long) Math.floor(hex * 60 * 10);
+
+            //cast Long to date dd/HH/MM/SS
+            Date date = new Date(hex);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd:HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+            System.out.println("----------------------" + sdf.format(date) + "------------------------------------------");
+
+            return(sdf.format(date));
+        }else{
+            //parse hexa to Long and Long to second
+            hex = Long.parseLong(tempo,16);
+            hex = (long) Math.floor(hex);
+
+            //cast Long to date dd/HH/MM/SS
+            Date date = new Date(hex);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd:HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+            System.out.println("----------------------" + sdf.format(date) + "------------------------------------------");
+
+            return(sdf.format(date));
+        }
+
+    }
+
+
+    public boolean time(String str){
+        return ((str.equals("AT+R_REG=00;0105")) || (str.equals("AT+R_REG=00;0106")) || (str.equals("AT+R_REG=00;0107")));
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+    }
+
+    //Life cycle
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //set the btn reset false
+        if(!time){
+            btnreset.setEnabled(false);
+        }
+
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -231,176 +466,24 @@ public class MainFragment extends Fragment implements View.OnClickListener{
         super.onDetach();
     }
 
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        alert();
-        if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
-            if(resultCode == Activity.RESULT_OK)
-                btnreset.setEnabled(true);
-                btnGetData.setEnabled(true);
-                txtCo.setText(R.string.text_co);
-                bt.connect(data);
-        } else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
-            if(resultCode == Activity.RESULT_OK) {
-                bt.setupService();
-                bt.startService(BluetoothState.DEVICE_ANDROID);
-            }
-        }
-    }
-
-    //Loader for receipt the data
-    private void alert() {
-
-        final ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setTitle("Wait");
-        progressDialog.setCancelable(false);
-        progressDialog.setMessage("Please wait for the receipt of the data");
-        progressDialog.show();
-
-        Runnable progressRunnable = new Runnable() {
-
-            @Override
-            public void run() {
-                progressDialog.cancel();
-            }
-        };
-
-        Handler pdCanceller = new Handler();
-        pdCanceller.postDelayed(progressRunnable, 5000);
-
+    @Override
+    public void onPause() {
+        super.onPause();
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String selected = sharedPreferences.getString("chosenAction","");
-
-        txt_action_getData.setText(selected);
-
-        //set the btn reset false
-        if(!time){
-            btnreset.setEnabled(false);
-        }
-
-        applyPref();
+    public void onStop() {
+        super.onStop();
     }
 
-    protected String convert(long hex){
-        //parse hexa to Long and Long to second
-        hex = Long.parseLong(temp[2],16);
-        hex = (long) Math.floor(hex * 60 * 10);
 
-        //cast Long to date HH/MM/SS
-        Date date = new Date(hex);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-        System.out.println("----------------------" + sdf.format(date) + "------------------------------------------");
-
-        return(sdf.format(date));
-    }
-
-    // Méthode for apply setting :
-    protected void applyPref() {
-        // - récupérer les valeurs choisies par l'utilisateur
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String selected = sharedPreferences.getString("chosenAction","");
-
-        switch (selected){
-
-            case "Get the Firmware":
-
-                str_action = FIRMWARE;
-                    break;
-
-            case "State input":
-
-                str_action = STATE_INPUT;
-
-                    break;
-
-            case "Rest state input":
-
-                str_action = STATE_REST;
-                    break;
-
-            case "Trigger1":
-
-                str_action = TRIGGER1;
-                    break;
-
-            case "Trigger2":
-
-                str_action = TRIGGER2;
-
-                break;
-
-            case "Trigger3":
-
-                str_action = TRIGGER3;
-
-                break;
-
-            case "Horamètre1":
-
-                time = true;
-                str_action = HORAMETRE1;
-
-
-                break;
-
-                  case "Horamètre2":
-
-                time = true;
-                str_action = HORAMETRE2;
-
-
-                break;
-
-            case "Horamètre3":
-
-                time =true;
-                str_action = HORAMETRE3;
-
-
-                break;
-
-            case "ADC1":
-
-                str_action = ADC1;
-
-
-                break;
-
-            case "ADC2":
-
-                str_action = ADC2;
-
-                break;
-
-            case "ADC3":
-
-                str_action = ADC3;
-
-                break;
-        }
-
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        outState.putAll(outState);
-    }
-
-    public boolean time(String str){
-        return ((str.equals("AT+R_REG=00;0105")) || (str.equals("AT+R_REG=00;0106")) || (str.equals("AT+R_REG=00;0107")));
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 }

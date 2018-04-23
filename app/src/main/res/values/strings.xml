@@ -14,6 +14,24 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
+    <string name="hour">Hour</string>
+    <string name="day">Day</string>
+    <string name="minutes">Minutes</string>
+    <string name="secondes">Secondes</string>
+    <string name="Connected_to">Connected to </string>
+    <string name="Connection_lost">Connection lost </string>
+    <string name="Unable_to_connect">Unable to connect </string>
+    <string name="value">Value</string>
+    <string name="setting_action">Choose your action</string>
+    <string name="wait_popup_title">Wait</string>
+    <string name="wait_popup_content">Please wait for the receipt of the data</string>
+
+    <string name="intent_connect_blue">Bluetooth devices</string>
+    <string name="intent_connect_no_device">No device</string>
+    <string name="intent_connect_scann">Scanning</string>
+    <string name="intent_connect_scann_for_device">Search</string>
+    <string name="intent_connect_select_device">Select</string>
+
     <string-array name="read_pref">
         <item>Get the Firmware</item>
         <item>State input</item>

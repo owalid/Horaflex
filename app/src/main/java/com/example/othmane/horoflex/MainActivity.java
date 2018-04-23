@@ -41,18 +41,16 @@ import app.akexorcist.bluetotohspp.library.BluetoothState;
 import app.akexorcist.bluetotohspp.library.DeviceList;
 
 
-//======================================================
-//==============Main Activity===========================
-//======================================================
+//=================================================================
+//          ==============    Main Activity   ==============
+//=================================================================
 public class MainActivity extends AppCompatActivity implements MainFragment.OnFragmentInteractionListener{
 
     MainFragment mainFragment = new MainFragment();
-    PreferenceFragment preferenceFragment = new Prefs();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
@@ -65,7 +63,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
     // Création du menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
 
@@ -75,15 +72,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
         // The item the user clicked on
         int id = item.getItemId();
         // Action chosen according to the item
-        switch (id){
-        // to display the settings
-           case R.id.action_settings:
-                //Attachment of the fragment of preferences
-                getFragmentManager().beginTransaction().addToBackStack("pref").replace(R.id.fragementContainer, preferenceFragment).commit();
 
-                return true;
-
-        }
         return super.onOptionsItemSelected(item);
 
     }
@@ -100,4 +89,12 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnFr
     public void onFragmentInteraction(Uri uri) {
 //
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+    }
+
+
 }

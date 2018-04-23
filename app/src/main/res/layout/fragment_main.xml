@@ -58,6 +58,7 @@
     </LinearLayout>
 
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,18 +89,46 @@
 
 
 
+
+
     </LinearLayout>
 
 
 
-
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/action_getData"
-        android:text=""
-        android:textSize="30sp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        >
 
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/action_getData"
+            android:text=""
+            android:textSize="30sp"/>
+
+
+
+
+        <Button
+            android:id="@+id/btnPref"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/Setting"
+            android:textSize="30sp" />
+
+
+
+
+    </LinearLayout>
 
 
 

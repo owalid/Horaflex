@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Horoflex</string>
+    <string name="btnreset_name">Réinitialiser</string>
+    <string name="btnconnection_name">Connexion</string>
+    <string name="btn_data">Récupérer les données</string>
+    <string name="text_Notco">Non connecté</string>
+    <string name="text_co">Connecté</string>
+    <string name="Setting">Configuration</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+    <string name="hour">Heure</string>
+    <string name="day">Jours</string>
+    <string name="minutes">Minutes</string>
+    <string name="secondes">Secondes</string>
+    <string name="Connected_to">Connecté à </string>
+    <string name="Connection_lost">Connexion perdu </string>
+    <string name="Unable_to_connect">Prêt à se connecter</string>
+    <string name="value">Valeur</string>
+    <string name="setting_action">Choix de l\'action</string>
+    <string name="wait_popup_title">Attendre</string>
+    <string name="wait_popup_content">Veuillez attendre la réception des données</string>
+
+    <string name="intent_connect_blue">Appareil bluetooth</string>
+    <string name="intent_connect_no_device">Pas d\'appareil</string>
+    <string name="intent_connect_scann">Recherche</string>
+    <string name="intent_connect_scann_for_device">Recherche</string>
+    <string name="intent_connect_select_device">Selectionner</string>
+
+    <string-array name="read_pref">
+        <item>Firmware</item>
+        <item>Etat d\'entré</item>
+        <item>Etat repos des entrées</item>
+        <item>Trigger1</item>
+        <item>Trigger2</item>
+        <item>Trigger3</item>
+        <item>Horamètre1</item>
+        <item>Horamètre2</item>
+        <item>Horamètre3</item>
+        <item>ADC1</item>
+        <item>ADC2</item>
+        <item>ADC3</item>
+    </string-array>
+
+</resources>
