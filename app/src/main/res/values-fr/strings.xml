@@ -27,6 +27,14 @@
     <string name="wait_popup_title">Attendre</string>
     <string name="wait_popup_content">Veuillez attendre la réception des données</string>
 
+
+
+    <string name="param_btn">paramétrer</string>
+    <string name="pram_title_alert">Editer</string>
+    <string name="error_param_ok">Veuillez renseigner le champ</string>
+
+
+
     <string name="intent_connect_blue">Appareil bluetooth</string>
     <string name="intent_connect_no_device">Pas d\'appareil</string>
     <string name="intent_connect_scann">Recherche</string>

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/border_style"
             android:text="Value:"
-            android:textSize="30sp"
+            android:textSize="@dimen/text_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -46,14 +46,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/btnconnection_name"
-            android:textSize="30sp" />
+            android:textSize="@dimen/text_size" />
 
         <TextView
             android:id="@+id/textCo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/btnCo"
-            android:textSize="30sp" />
+            android:textSize="@dimen/text_size" />
+
+        <Button
+            android:id="@+id/btnData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/btn_data"
+            android:textSize="@dimen/text_size" />
 
     </LinearLayout>
 
@@ -74,18 +84,18 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:text="@string/btnreset_name"
-            android:textSize="30sp" />
+            android:textSize="@dimen/text_size" />
 
 
         <Button
-            android:id="@+id/btnData"
+            android:id="@+id/btnPara"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:text="@string/btn_data"
-            android:textSize="30sp" />
+            android:text="@string/param_btn"
+            android:textSize="@dimen/text_size" />
 
 
 
@@ -110,7 +120,7 @@
             android:layout_weight="1"
             android:id="@+id/action_getData"
             android:text=""
-            android:textSize="30sp"/>
+            android:textSize="@dimen/text_size"/>
 
 
 
@@ -123,7 +133,7 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:text="@string/Setting"
-            android:textSize="30sp" />
+            android:textSize="@dimen/text_size" />
 
 
 

@@ -26,6 +26,13 @@
     <string name="wait_popup_title">Wait</string>
     <string name="wait_popup_content">Please wait for the receipt of the data</string>
 
+
+
+    <string name="param_btn">Set</string>
+    <string name="pram_title_alert">Edit</string>
+    <string name="error_param_ok">Please fill in the field</string>
+
+
     <string name="intent_connect_blue">Bluetooth devices</string>
     <string name="intent_connect_no_device">No device</string>
     <string name="intent_connect_scann">Scanning</string>

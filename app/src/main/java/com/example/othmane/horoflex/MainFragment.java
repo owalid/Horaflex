@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceFragment;
 import android.app.Fragment;
+import android.text.InputType;
 import android.util.TimeUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.lang.reflect.Array;
@@ -70,6 +72,8 @@ import app.akexorcist.bluetotohspp.library.DeviceList;
 //==============Main Fragment===========================
 //======================================================
 
+
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -89,22 +93,28 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private final static String ADC2 = "AT+R_REG=00;0109";
     private final static String ADC3 = "AT+R_REG=00;010A";
     private final static String NO_DATA = "NO DATA";
+    private final static int REQUEST_CODE_ENABLE_BLUETOOTH = 0;
 
 
-    private Button btnreset, btnConnection, btnGetData, btnPref;
+    private final String params = "";
+
+
+    private Button btnreset, btnConnection, btnGetData, btnPref, btnPara;
     private TextView txt, txt_action_getData;
-    private BluetoothAdapter BA;
-    BluetoothSPP bt;
+    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+
+    BluetoothSPP bt = new BluetoothSPP(getContext());
     String[] temp;
     long hex;
     Date date = new Date();
     private String str_action = "";
     boolean time;
 
-
     //---TODO CYCLE DE VIE DE LAPPLI..done
     //-----TODO PB DE TROP LONG VALEUR DANS CONVERT...done
     //--------TODO ADD LANGUE FRANCAISE..done
+    //----------TODO pouvoir parameterer hora et trigger..done
 
 
     @Override
@@ -112,46 +122,10 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
         super.onCreate(savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        bt = new BluetoothSPP(getContext());
-        bt.setupService();
-        bt.enable();
-
-        bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
-            public void onDeviceConnected(String name, String address) {
-                btnConnection.setText(getResources().getString(R.string.Connected_to) + " " + name);
-                btnGetData.setEnabled(true);
-            }
-
-            public void onDeviceDisconnected() {
-                btnConnection.setText(R.string.Unable_to_connect);
-                btnGetData.setEnabled(false);
-                btnreset.setEnabled(false);
-            }
-
-            public void onDeviceConnectionFailed() {
-                btnConnection.setText(R.string.Connection_lost);
-                btnGetData.setEnabled(false);
-                btnreset.setEnabled(false);
-            }
-        });
-
-        if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
-            bt.disconnect();
-        } else {
-            bt.startService(BluetoothState.DEVICE_OTHER);
-            Intent intent = new Intent(getActivity(), DeviceList.class);
-            intent.putExtra("bluetooth_devices", R.string.intent_connect_blue);
-            intent.putExtra("no_devices_found", R.string.intent_connect_no_device);
-            intent.putExtra("scanning", R.string.intent_connect_scann);
-            intent.putExtra("scan_for_devices", R.string.intent_connect_scann_for_device);
-            intent.putExtra("select_device", R.string.intent_connect_select_device);
-            startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-        }
-
-        //init button
+        //init buttons
         btnreset = (Button) view.findViewById(R.id.btnReset);
         btnreset.setOnClickListener(this);
 
@@ -159,17 +133,60 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         btnConnection.setOnClickListener(this);
 
         btnGetData = (Button) view.findViewById(R.id.btnData);
+        btnGetData.setEnabled(false);
         btnGetData.setOnClickListener(this);
 
         btnPref = (Button) view.findViewById(R.id.btnPref);
+        btnPref.setEnabled(false);
         btnPref.setOnClickListener(this);
+
+        btnPara = (Button) view.findViewById(R.id.btnPara);
+        btnPara.setEnabled(false);
+        btnPara.setOnClickListener(this);
 
         //init text
         txt = (TextView) view.findViewById(R.id.returnText);
         txt_action_getData = (TextView) view.findViewById(R.id.action_getData);
 
+        //start the connection
+        bt.setupService();
+        bt.enable();
+
+
+        if (bluetoothAdapter == null)
+            Toast.makeText(getActivity(), "Pas de Bluetooth",
+                    Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(getActivity(), "Bluetooth activé",
+                    Toast.LENGTH_SHORT).show();
+
+        bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
+            public void onDeviceConnected(String name, String address) {
+                String btnConnectionText = getResources().getString(R.string.Connected_to) + " " + name;
+                btnConnection.setText(btnConnectionText);
+                btnPref.setEnabled(true);
+                btnGetData.setEnabled(true);
+            }
+
+            public void onDeviceDisconnected() {
+                btnConnection.setText(R.string.Unable_to_connect);
+                btnGetData.setEnabled(false);
+                btnreset.setEnabled(false);
+                btnPref.setEnabled(false);
+            }
+
+            public void onDeviceConnectionFailed() {
+                btnConnection.setText(R.string.Connection_lost);
+                btnGetData.setEnabled(false);
+                btnreset.setEnabled(false);
+                btnPref.setEnabled(false);
+            }
+        });
+
         return view;
     }
+
+
 
     @Override
     public void onClick(View v) {
@@ -178,85 +195,48 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
             case R.id.btnReset:
                 if (!(str_action.equals(NO_DATA)) && time(str_action)) {
-                    bt.send("AT+W_REG=00;0105;00000000", true);
+                    sendMessage("AT+W_REG=00;0105;00000000");
                 } else {
                     txt.setText(NO_DATA + " TO RESET");
                 }
-
-                bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
-                    public void onDataReceived(byte[] data, String message) {
-                        //split the data
-                        temp = message.split(";");
-                        //parse hexa to Long and Long to second
-                        hex = Long.parseLong(temp[2], 16);
-                        System.out.println("=====================================================================" + message + "=====================================================================" + temp[2] + "=====================================================================" + convert() );
-                        txt.setText(convert());
-                    }
-                });
                 break;
 
             case R.id.btnData:
                 if (!(str_action.equals(NO_DATA))) {
-                    bt.send(str_action, true);
+                    sendMessage(str_action);
                 } else {
                     txt.setText(NO_DATA);
                 }
-                bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
-                    public void onDataReceived(byte[] data, String message) {
-                        // Do something when data incoming
-                        if ((str_action.split(";")[1].equals("0105")) || (str_action.split(";")[1].equals("0106")) || (str_action.split(";")[1].equals("0107"))) {
-                            btnreset.setEnabled(true);
-
-                            //split the data
-                            temp = message.split(";");
-
-                            //parse hexa to Long and Long to second
-                            hex = Long.parseLong(temp[2], 16);
-
-
-
-                            txt.setText(convert());
-
-                            //set Text
-                        } else {
-                            txt.setText(message.split(";")[2]);
-                        }
-                    }
-                });
                 break;
 
             case R.id.btnCo:
-                bt.startService(BluetoothState.DEVICE_OTHER);
-                Intent intent = new Intent(getActivity(), DeviceList.class);
-                intent.putExtra("bluetooth_devices", "Bluetooth devices");
-                intent.putExtra("no_devices_found", "No device");
-                intent.putExtra("scanning", "Scanning");
-                intent.putExtra("scan_for_devices", "Search");
-                intent.putExtra("select_device", "Select");
-                startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+                verifBluetooth();
                 break;
+
             case R.id.btnPref:
                 onCreateDialog();
                 break;
+
+            case R.id.btnPara:
+                alertConfig();
+                break;
         }
     }
-
-
-    public interface OnFragmentInteractionListener {
+        public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        alert();
+
         if (requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
+            alert();
             if (resultCode == Activity.RESULT_OK)
-                btnreset.setEnabled(true);
-            btnGetData.setEnabled(true);
-            bt.connect(data);
+                bt.connect(data);
         }
     }
 
+    //=================================MODALES==========================
     //Loader for receipt the data
     private void alert() {
         String content = "";
@@ -293,68 +273,90 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                                 txt_action_getData.setText(mSelectedItems[which]);
                                 switch (which){
 
-                                    //english
+
                                     case 0  :
                                         str_action = FIRMWARE;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(false);
+
                                         break;
 
                                     case 1:
                                         str_action = STATE_INPUT;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(false);
+
                                         break;
 
                                     case 2:
                                         str_action = STATE_REST;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(false);
+
                                         break;
 
 
                                     case 3:
                                         str_action = TRIGGER1;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(true);
                                         break;
 
                                     case 4:
                                         str_action = TRIGGER2;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(true);
+
                                         break;
 
                                     case 5:
                                         str_action = TRIGGER3;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(true);
+
                                         break;
 
                                     case 6:
                                         str_action = HORAMETRE1;
                                         btnreset.setEnabled(true);
+                                        btnPara.setEnabled(true);
+
                                         break;
 
                                     case 7:
                                         str_action = HORAMETRE2;
                                         btnreset.setEnabled(true);
+                                        btnPara.setEnabled(true);
+
                                         break;
 
                                     case 8:
                                         str_action = HORAMETRE3;
                                         btnreset.setEnabled(true);
+                                        btnPara.setEnabled(true);
+
                                         break;
 
                                     case 9:
                                         str_action = ADC1;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(false);
+
                                         break;
 
                                     case 10:
                                         str_action = ADC2;
                                         btnreset.setEnabled(false);
+                                        btnPara.setEnabled(false);
+
                                         break;
 
                                     case 11:
                                         str_action = ADC3;
                                         btnreset.setEnabled(false);
-                                        break;
+                                        btnPara.setEnabled(false);
 
+                                        break;
                                 }
 
                             }
@@ -363,7 +365,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-
                         dialog.dismiss();
                     }
                 })
@@ -373,27 +374,91 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                         dialog.dismiss();
                     }
                 });
-
          builder.show();
     }
 
+    private void alertConfig(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        final String title = getResources().getString(R.string.pram_title_alert) + " " + txt_action_getData.getText().toString();
+        builder.setTitle(title);
+
+// Set up the input
+        final EditText input = new EditText(getContext());
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        builder.setView(input);
+
+// Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+
+
+                if(input.getText().toString().equals("")){
+                    Toast.makeText(getActivity(), getResources().getString(R.string.error_param_ok),
+                            Toast.LENGTH_SHORT).show();
+                }else{
+                    System.out.println();
+                    //convert to hexa and create a query
+                    String cmd = "";
+                    char[] cmdTab;
+                    cmd = str_action + ";"+toOct(toHex(input.getText().toString()));
+                    cmdTab = cmd.toCharArray();
+                    cmdTab[3] = 'W';
+                    cmd = String.valueOf(cmdTab).toUpperCase();
+                    sendMessage(cmd);
+                }
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+    //===========================END MODALES====================================
+
+
+
+    //====================================UTILITIES==================================
+
+
+
+    //================== SEND A MESSAGE str WITH BLUETOOTH================================
+    public void sendMessage(final String str) {
+
+        bt.send(str, true);
+        bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
+            public void onDataReceived(byte[] data, String message) {
+                // Do something when data incoming
+                if ((str.split(";")[1].equals("0105")) || (str.split(";")[1].equals("0106")) || (str.split(";")[1].equals("0107"))) {
+                    btnreset.setEnabled(true);
+
+                    //split the data
+                    temp = message.split(";");
+                    txt.setText(convert());
+
+                    //set Text
+                } else {
+                    txt.setText(message.split(";")[2]);
+                }
+            }
+        });
+    }
+
+    //==================== CONVERT HEXA TO DAY LIKE DD:HH:MM:SS================================
     protected String convert(){
         long hexad=0;
-        System.out.println("----------------------" + hexad + "------------------------------------------" + "-------------------------------------" + temp[2]);
-
-
             //parse hexa to Long and Long to second
             hexad = Long.parseLong(temp[2],16);
-            //hexad = (long) Math.floor(hexad);
+            System.out.println("hexad:::::::::::" + hexad);
+
+        //hexad = (long) Math.floor(hexad);
 
             //cast Long to date dd/HH/MM/SS
-            //Date date = new Date(hexad);
-
-            /*Duration date = Duration.ofSeconds(hexad);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd:HH:mm:ss");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            System.out.println("----------------------" + sdf.format(date) + "------------------------------------------" + hexad);
-*/
 
             long days = hexad / (86400);
             hexad -= days * 86400;
@@ -403,35 +468,94 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             hexad -= minutes * 60;
             long seconds = hexad;
 
-
-
-            return(days + "jours " + hours + " heures " + minutes + " min " + seconds + " sec");
-
+        String varReturn = "";
+            if(days == 1)
+                varReturn = days + " jour " + hours + " h " + minutes + " mn " + seconds + " sec";
+            else if (days == 0){
+                varReturn = hours + " h " + minutes + " mn " + seconds + " sec";
+            }
+            else {
+               varReturn = days + " jours " + hours + " h " + minutes + " mn " + seconds + " sec";
+            }
+        return(varReturn);
     }
 
+    //======================= Convert string to hexa===============================================
+    protected static String toHex(String str){
 
+       return Long.toHexString(Integer.parseInt(str));
+    }
+
+    //========================= Convert string to bytes================================================
+    protected static String toOct(String str){
+        String zero = "";
+        for (int i = str.length(); i< 8; i++){
+            zero += "0";
+        }
+        return zero + str;
+    }
+
+    //=========================== TIME OR NOT ? ============================================================
     public boolean time(String str){
         return ((str.equals("AT+R_REG=00;0105")) || (str.equals("AT+R_REG=00;0106")) || (str.equals("AT+R_REG=00;0107")));
     }
 
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+    }
+
+    public void verifBluetooth(){
+        if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBlueTooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBlueTooth, REQUEST_CODE_ENABLE_BLUETOOTH);
+        }
+        else{
+
+           if(bt.getServiceState() != BluetoothState.REQUEST_CONNECT_DEVICE){
+                bt.startService(BluetoothState.DEVICE_OTHER);
+                Intent intent = new Intent(getActivity(), DeviceList.class);
+                intent.putExtra("bluetooth_devices", R.string.intent_connect_blue);
+                intent.putExtra("no_devices_found", R.string.intent_connect_no_device);
+                intent.putExtra("scanning", R.string.intent_connect_scann);
+                intent.putExtra("scan_for_devices", R.string.intent_connect_scann_for_device);
+                intent.putExtra("select_device", R.string.intent_connect_select_device);
+                startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+            }
+
+        }
 
     }
 
     //Life cycle
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-
         //set the btn reset false
         if(!time){
             btnreset.setEnabled(false);
         }
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
     }
 
     @Override
@@ -449,24 +573,4 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         super.onDetach();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 }
