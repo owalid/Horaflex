@@ -95,21 +95,18 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private final static String NO_DATA = "NO DATA";
     private final static int REQUEST_CODE_ENABLE_BLUETOOTH = 0;
 
-
     private final String params = "";
-
 
     private Button btnreset, btnConnection, btnGetData, btnPref, btnPara;
     private TextView txt, txt_action_getData;
-    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-
-    BluetoothSPP bt = new BluetoothSPP(getContext());
-    String[] temp;
-    long hex;
-    Date date = new Date();
+    private BluetoothSPP bt = new BluetoothSPP(getContext());
+    private String[] temp;
+    private long hex;
+    private Date date = new Date();
     private String str_action = "";
-    boolean time;
+    private boolean time;
 
     //---TODO CYCLE DE VIE DE LAPPLI..done
     //-----TODO PB DE TROP LONG VALEUR DANS CONVERT...done
@@ -152,6 +149,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         bt.setupService();
         bt.enable();
 
+        verifBluetooth();
 
         if (bluetoothAdapter == null)
             Toast.makeText(getActivity(), "Pas de Bluetooth",
@@ -182,7 +180,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 btnPref.setEnabled(false);
             }
         });
-
         return view;
     }
 
@@ -506,12 +503,12 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     public void verifBluetooth(){
-        if (!bluetoothAdapter.isEnabled()) {
+        if (!bluetoothAdapter.isEnabled() ) {
+            bt.stopService();
             Intent enableBlueTooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBlueTooth, REQUEST_CODE_ENABLE_BLUETOOTH);
         }
         else{
-
            if(bt.getServiceState() != BluetoothState.REQUEST_CONNECT_DEVICE){
                 bt.startService(BluetoothState.DEVICE_OTHER);
                 Intent intent = new Intent(getActivity(), DeviceList.class);
@@ -522,9 +519,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 intent.putExtra("select_device", R.string.intent_connect_select_device);
                 startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
             }
-
         }
-
     }
 
     //Life cycle
@@ -542,6 +537,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
+
         //set the btn reset false
         if(!time){
             btnreset.setEnabled(false);
@@ -550,6 +546,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onPause() {
+
         super.onPause();
     }
 
