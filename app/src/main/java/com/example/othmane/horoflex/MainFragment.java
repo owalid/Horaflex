@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceFragment;
 import android.app.Fragment;
+import android.util.TimeUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
@@ -187,11 +189,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                         temp = message.split(";");
                         //parse hexa to Long and Long to second
                         hex = Long.parseLong(temp[2], 16);
-                        System.out.println("=====================================================================" + message + "=====================================================================" + temp[2] + "=====================================================================" + convert(hex, temp[2]) );
-
-                        String returnString = convert(hex, temp[2]);
-
-                        txt.setText(returnString.split(":")[0] + " Journée " + returnString.split(":")[0] + " H " + returnString.split(":")[0] + " Mn " + returnString.split(":")[0] + " Sec " );
+                        System.out.println("=====================================================================" + message + "=====================================================================" + temp[2] + "=====================================================================" + convert() );
+                        txt.setText(convert());
                     }
                 });
                 break;
@@ -215,9 +214,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                             hex = Long.parseLong(temp[2], 16);
 
 
-                            String returnString = convert(hex, temp[2]);
 
-                            txt.setText(returnString.split(":")[0] + " Journée " + returnString.split(":")[0] + " H " + returnString.split(":")[0] + " Mn " + returnString.split(":")[0] + " Sec " );
+                            txt.setText(convert());
 
                             //set Text
                         } else {
@@ -293,82 +291,66 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 txt_action_getData.setText(mSelectedItems[which]);
-                                switch (mSelectedItems[which]){
+                                switch (which){
 
                                     //english
-                                    case "Get the Firmware"  :
+                                    case 0  :
                                         str_action = FIRMWARE;
                                         btnreset.setEnabled(false);
                                         break;
 
-                                    case "State input":
+                                    case 1:
                                         str_action = STATE_INPUT;
                                         btnreset.setEnabled(false);
                                         break;
 
-                                    case "Rest state input":
-                                        str_action = STATE_REST;
-                                        btnreset.setEnabled(false);
-                                        break;
-
-                                    //french
-                                    case "Firmware":
-                                        str_action = STATE_INPUT;
-                                        btnreset.setEnabled(false);
-                                        break;
-
-                                    case "Etat d'entré":
-                                        str_action = FIRMWARE;
-                                        btnreset.setEnabled(false);
-                                        break;
-
-                                    case "Etat repos des entrées":
+                                    case 2:
                                         str_action = STATE_REST;
                                         btnreset.setEnabled(false);
                                         break;
 
 
-                                    case "Trigger1":
+                                    case 3:
                                         str_action = TRIGGER1;
                                         btnreset.setEnabled(false);
                                         break;
 
-                                    case "Trigger2":
+                                    case 4:
                                         str_action = TRIGGER2;
                                         btnreset.setEnabled(false);
                                         break;
 
-                                    case "Trigger3":
+                                    case 5:
                                         str_action = TRIGGER3;
                                         btnreset.setEnabled(false);
                                         break;
 
-                                    case "Horamètre1":
+                                    case 6:
                                         str_action = HORAMETRE1;
                                         btnreset.setEnabled(true);
                                         break;
 
-                                    case "Horamètre2":
+                                    case 7:
                                         str_action = HORAMETRE2;
                                         btnreset.setEnabled(true);
                                         break;
 
-                                    case "Horamètre3":
+                                    case 8:
                                         str_action = HORAMETRE3;
                                         btnreset.setEnabled(true);
                                         break;
 
-                                    case "ADC1":
+                                    case 9:
                                         str_action = ADC1;
                                         btnreset.setEnabled(false);
                                         break;
 
-                                    case "ADC2":
+                                    case 10:
                                         str_action = ADC2;
                                         btnreset.setEnabled(false);
                                         break;
 
-                                    case "ADC3":
+                                    case 11:
                                         str_action = ADC3;
                                         btnreset.setEnabled(false);
                                         break;
@@ -395,34 +377,35 @@ public class MainFragment extends Fragment implements View.OnClickListener {
          builder.show();
     }
 
-    protected String convert(long hex, String tempo){
+    protected String convert(){
+        long hexad=0;
+        System.out.println("----------------------" + hexad + "------------------------------------------" + "-------------------------------------" + temp[2]);
 
-        if(hex != 00000000 ){
+
             //parse hexa to Long and Long to second
-            hex = Long.parseLong(tempo,16);
-            hex = (long) Math.floor(hex * 60 * 10);
+            hexad = Long.parseLong(temp[2],16);
+            //hexad = (long) Math.floor(hexad);
 
             //cast Long to date dd/HH/MM/SS
-            Date date = new Date(hex);
+            //Date date = new Date(hexad);
+
+            /*Duration date = Duration.ofSeconds(hexad);
             SimpleDateFormat sdf = new SimpleDateFormat("dd:HH:mm:ss");
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            System.out.println("----------------------" + sdf.format(date) + "------------------------------------------");
+            System.out.println("----------------------" + sdf.format(date) + "------------------------------------------" + hexad);
+*/
 
-            return(sdf.format(date));
-        }else{
-            //parse hexa to Long and Long to second
-            hex = Long.parseLong(tempo,16);
-            hex = (long) Math.floor(hex);
+            long days = hexad / (86400);
+            hexad -= days * 86400;
+            long hours = hexad / 3600 ;
+            hexad -= hours * 3600;
+            long minutes = hexad / 60;
+            hexad -= minutes * 60;
+            long seconds = hexad;
 
-            //cast Long to date dd/HH/MM/SS
-            Date date = new Date(hex);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd:HH:mm:ss");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-            System.out.println("----------------------" + sdf.format(date) + "------------------------------------------");
 
-            return(sdf.format(date));
-        }
+            return(days + "jours " + hours + " heures " + minutes + " min " + seconds + " sec");
 
     }
 
